@@ -18,8 +18,8 @@ jobs:
       - name: Install dependencies
         run: npm i
         
-      - name: Build storybook
-        run: ng build --prod
+      - name: Build angular app
+        run: npm run build
 
       - name: Publish to GH Pages Branch
         uses: s0/git-publish-subdir-action@master
