@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Netflix",
+    "image": "assets/pictures/covers/netflix.jpg",
+    "url": "https://www.netflix.com/"
+  },
+  {
+    "name": "HBO",
+    "image": "assets/pictures/covers/hbo.jpg",
+    "url": "https://es.hboespana.com/"
+  },
+  {
+    "name": "Prime Video",
+    "image": "assets/pictures/covers/prime-video.png",
+    "url": "https://www.primevideo.com/"
+  },
+  {
+    "name": "RPG Maker MV",
+    "image": "assets/pictures/covers/rpg-maker-mv.jpg",
+    "url": "steam://rungameid/363890"
+  },
+  {
+    "name": "Dragon Quest Builders 2",
+    "image": "assets/pictures/covers/dq-builders-2.jpg",
+    "url": "steam://rungameid/1072420"
+  },
+  {
+    "name": "Final Fantasy XV",
+    "image": "assets/pictures/covers/ff-xv.jpg",
+    "url": "steam://rungameid/637650"
+  },
+  {
+    "name": "Mount & Blade Warband",
+    "image": "assets/pictures/covers/mb-warband.jpg",
+    "url": "steam://rungameid/48700"
+  }
+]
