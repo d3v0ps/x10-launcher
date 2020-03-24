@@ -1,1 +1,150 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import '~bootstrap/scss/bootstrap';
+@import '~animate.css/animate.min';
+
+body {
+  background: #ebebeb;
+  cursor: url('assets/cursor.png'), auto;
+}
+
+.header {
+  background: transparent !important;
+  box-shadow: none !important;
+  // padding: 1rem;
+  // width: 60vw;
+  // margin: 0 auto;
+}
+
+.container-fluid {
+  padding: 20vh 0 0;
+  height: calc(100vh - 56px - 224px);
+}
+
+.cards-container {
+  margin: 0 20vw 0;
+
+  h2 {
+    color: #0078d7;
+  }
+
+  .card {
+    cursor: url('assets/cursor.png'), auto;
+    width: 300px !important;
+    height: 300px !important;
+    overflow: hidden !important;
+    &.active {
+      border: 5px solid #0078d7;
+    }
+    img {
+      width: 300px !important;
+      height: 300px !important;
+    }
+  }
+}
+
+.footer {
+  margin: 0 20vw;
+  padding-bottom: 120px;
+
+  .icon-container {
+    background: white;
+    border: 2px solid white;
+    border-radius: 100px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    width: 80px;
+    height: 80px;
+    cursor: url('assets/cursor.png'), auto;
+
+    &:focus {
+      outline: none;
+    }
+
+    i {
+      font-size: 60px;
+      vertical-align: sub;
+      text-align: center;
+      position: relative;
+      top: -10px;
+      left: 8px;
+    }
+
+    &.spotify {
+      i {
+        color: #1db954;
+      }
+      &:hover {
+        background: #1db954;
+        border-color: #1db954;
+        i {
+          color: white;
+        }
+      }
+    }
+
+    &.code {
+      i {
+        color: #019a7c;
+      }
+      &:hover {
+        background: #019a7c;
+        border-color: #019a7c;
+        i {
+          color: white;
+        }
+      }
+    }
+
+    &.edge {
+      i {
+        color: #1288d0;
+      }
+      &:hover {
+        background: #1288d0;
+        border-color: #1288d0;
+        i {
+          color: white;
+        }
+      }
+    }
+
+    &.explorer {
+      i {
+        color: #fedb77;
+      }
+      &:hover {
+        background: #fedb77;
+        border-color: #fedb77;
+        i {
+          color: white;
+        }
+      }
+    }
+
+    &.whatsapp {
+      i {
+        color: #075e54;
+      }
+      &:hover {
+        background: #075e54;
+        border-color: #075e54;
+        i {
+          color: white;
+        }
+      }
+    }
+
+    &.note {
+      i {
+        color: #ffd616;
+      }
+      &:hover {
+        background: #ffd616;
+        border-color: #ffd616;
+        i {
+          color: white;
+        }
+      }
+    }
+  }
+}

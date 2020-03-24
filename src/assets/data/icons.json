@@ -1,0 +1,27 @@
+[
+  {
+    "icon": "folder",
+    "container": "explorer",
+    "url": "C://Users/aitor/Documents/Shortcuts/Explorer.lnk"
+  },
+  {
+    "icon": "microsoft-edge",
+    "container": "edge",
+    "url": "C://Users/aitor/Documents/Shortcuts/Edge.lnk"
+  },
+  {
+    "icon": "whatsapp",
+    "container": "whatsapp",
+    "url": "C://Users/aitor/Documents/Shortcuts/Whatsapp.lnk"
+  },
+  {
+    "icon": "spotify",
+    "container": "spotify",
+    "url": "C://Users/aitor/Documents/Shortcuts/Spotify.lnk"
+  },
+  {
+    "icon": "microsoft-visual-studio-code",
+    "container": "code",
+    "url": "C://Users/aitor/Documents/Shortcuts/Code.lnk"
+  }
+]
