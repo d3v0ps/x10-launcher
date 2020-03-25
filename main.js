@@ -1,7 +1,13 @@
-const {app, BrowserWindow, shell} = require('electron') //importamos lo necesario para trabajar ocn electron
-const path = require('path')
-const url = require('url')
-const { ipcMain } = require('electron');
+const {app, BrowserWindow, shell, ipcMain } = require('electron'); //importamos lo necesario para trabajar ocn electron
+const path = require('path');
+const url = require('url');
+const wifi = require('node-wifi');
+const batteryLevel = require('battery-level');
+const shutdown = require('electron-shutdown-command');
+
+wifi.init({
+  iface: null // network interface, choose a random wifi interface if set to null
+});
 
 let win; // esta variable tendrá el contenido de nuestra ventana de aplicación
 
@@ -23,7 +29,7 @@ function createWindow () { //aqui procedemos a crear la ventana
   win.maximize();
   win.setFullScreen(true);
 
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
 //esto se dispara cuando cerremos la ventana, igualamos win en null para liberar memoria
   win.on('closed', () => {
@@ -49,6 +55,28 @@ app.on('activate', () => {
   }
 })
 
+ipcMain.on('system signal', (event, signal) => {
+  switch (signal) {
+    case 'close':
+      app.quit();
+      break;
+    case 'restart':
+      shutdown.reboot({
+        force: true,
+        timerseconds: 60,
+        quitapp: true
+      })
+      break;
+    case 'shutdown':
+      shutdown.shutdown({
+        force: true,
+        timerseconds: 60,
+        quitapp: true
+      })
+      break;
+  }
+})
+
 ipcMain.on('open app', (event, appToOpen) => {
 
     switch (appToOpen.name) {
@@ -56,4 +84,15 @@ ipcMain.on('open app', (event, appToOpen) => {
         shell.openItem(appToOpen.url);
     }
 
+});
+
+ipcMain.on('get system metadata', async (event, arg) => {
+
+  const wifiConnections = await wifi.getCurrentConnections();
+  const battery = await batteryLevel();
+
+  event.reply('system metadata', {
+    wifiConnections,
+    battery
+  })
 });

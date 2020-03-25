@@ -5,9 +5,10 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { SwiperModule, SWIPER_CONFIG, SwiperConfigInterface } from 'ngx-swiper-wrapper';
 import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
+import { SidebarModule } from 'ng-sidebar';
 
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './header.component';
+import { SidebarComponent } from './sidebar.component';
 
 const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
   direction: 'horizontal',
@@ -17,7 +18,7 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,
@@ -25,6 +26,7 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
     HttpClientModule,
     SwiperModule,
     KeyboardShortcutsModule.forRoot(),
+    SidebarModule.forRoot(),
   ],
   providers: [
     {

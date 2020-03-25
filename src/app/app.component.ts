@@ -10,40 +10,59 @@ import { take } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   template: `
-    <ng-keyboard-shortcuts [shortcuts]="shortcuts"></ng-keyboard-shortcuts>
-    <ng-keyboard-shortcuts-help [key]="'?'" [closeKey]="'escape'" [title]="'Help'"></ng-keyboard-shortcuts-help>
-    <!-- app-header></app-header -->
-    <div class="container-fluid" (wheel)="onWheel($event)">
+    <ng-sidebar-container style="height: 100vh;">
 
-      <div class="cards-container">
-        <h2>{{ selectedCard?.name }}</h2>
-        <swiper [config]="swiperConfig" [(index)]="selectedIndex" (indexChange)="onSwipeChange($event)">
-          <div class="card" *ngFor="let card of cards$ | async; let i = index"
-            (click)="onCardClick(card)"
-            (dblclick)="onCardDblClick(card)"
-            [ngClass]="{
-              'active': i === selectedIndex,
-              'animated pulse': card.opening
-            }">
-            <img [src]="card.image">
+      <!-- A sidebar -->
+      <ng-sidebar [(opened)]="sidebarOpened" position="right" showBackdrop="true" closeOnClickBackdrop="true">
+        <app-sidebar></app-sidebar>
+      </ng-sidebar>
+
+      <!-- Page content -->
+      <div ng-sidebar-content>
+
+        <ng-keyboard-shortcuts [shortcuts]="shortcuts"></ng-keyboard-shortcuts>
+        <ng-keyboard-shortcuts-help [key]="'?'" [closeKey]="'escape'" [title]="'Help'"></ng-keyboard-shortcuts-help>
+        <!-- app-header></app-header -->
+
+        <i class="sidebar-button mdi mdi-backburger"
+          (click)="sidebarOpened = !sidebarOpened"></i>
+
+        <div class="container-fluid" (wheel)="onWheel($event)">
+
+          <div class="cards-container">
+            <h2>{{ selectedCard?.name }}</h2>
+            <swiper [config]="swiperConfig" [(index)]="selectedIndex" (indexChange)="onSwipeChange($event)">
+              <div class="card" *ngFor="let card of cards$ | async; let i = index"
+                (click)="onCardClick(card)"
+                (dblclick)="onCardDblClick(card)"
+                [ngClass]="{
+                  'active': i === selectedIndex,
+                  'animated pulse': card.opening
+                }">
+                <img [src]="card.image">
+              </div>
+            </swiper>
           </div>
-        </swiper>
-      </div>
 
-      <div class="swiper-pagination"></div>
+          <div class="swiper-pagination"></div>
 
-    </div>
-
-    <footer class="footer navbar pt-4 justify-content-between">
-        <div *ngFor="let icon of icons$ | async"
-          class="icon-container {{ icon.container }}"
-          (click)="onCardDblClick(icon)">
-          <i class="mdi mdi-{{ icon.icon }}"></i>
         </div>
-    </footer>
+
+        <footer class="footer navbar pt-4 justify-content-between">
+            <div *ngFor="let icon of icons$ | async"
+              class="icon-container {{ icon.container }}"
+              (click)="onCardDblClick(icon)">
+              <i class="mdi mdi-{{ icon.icon }}"></i>
+            </div>
+        </footer>
+
+      </div>
+    </ng-sidebar-container>
   `
 })
 export class AppComponent implements OnInit {
+
+  sidebarOpened = false;
 
   swiperConfig: Partial<SwiperConfig> = {
     slidesPerView: 'auto',
@@ -67,6 +86,13 @@ export class AppComponent implements OnInit {
       preventDefault: true,
       description: 'Select Game or Application',
       command: e => this.onCardDblClick(this.selectedCard)
+    },
+    {
+      key: ['space'],
+      label: 'Menu',
+      preventDefault: true,
+      description: 'Show Menu',
+      command: e => this.sidebarOpened = !this.sidebarOpened
     },
     {
       key: ['cmd + s'],

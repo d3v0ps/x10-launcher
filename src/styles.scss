@@ -8,6 +8,26 @@ body {
   cursor: url('assets/cursor.png'), auto;
 }
 
+.ng-sidebar {
+  background: #ebebeb;
+  box-shadow: 0 0 2.5em rgba(85,85,85,0.5);
+  z-index: 100 !important;
+}
+
+.ng-sidebar__backdrop {
+  opacity: 0.4 !important;
+  z-index: 99 !important;
+}
+
+.sidebar-button {
+  font-size: 40px;
+  float: right;
+  color: #B33771;
+  right: 40px;
+  position: relative;
+  top: 20px;
+}
+
 .header {
   background: transparent !important;
   box-shadow: none !important;
