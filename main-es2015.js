@@ -39,14 +39,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! howler */ "./node_modules/howler/dist/howler.js");
 /* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(howler__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
+
 
 
 
 
 
 let AppComponent = class AppComponent {
-    constructor(http) {
+    constructor(http, cd) {
         this.http = http;
+        this.cd = cd;
         this.sidebarOpened = false;
         this.swiperConfig = {
             slidesPerView: 'auto',
@@ -128,8 +131,6 @@ let AppComponent = class AppComponent {
         else {
             console.warn('Electron\'s IPC was not loaded');
         }
-    }
-    ngOnInit() {
         this.http.get('assets/data/cards.json').subscribe(cards => {
             this.selectedCard = cards[this.selectedIndex];
             this.cards$.next(cards);
@@ -140,6 +141,54 @@ let AppComponent = class AppComponent {
         this.http.get('assets/data/sounds.json').subscribe(sounds => {
             this.sounds$.next(sounds);
         });
+        if (window.gameControl) {
+            window.gameControl.on('connect', (gamepad) => {
+                gamepad.after('button0', () => this.onCardDblClick(this.selectedCard));
+                gamepad.after('button1', () => console.log('button1'));
+                gamepad.after('button2', () => console.log('button2'));
+                gamepad.after('button3', () => console.log('button3'));
+                gamepad.after('button4', () => console.log('button4'));
+                gamepad.after('button5', () => console.log('button5'));
+                gamepad.after('button6', () => console.log('button6'));
+                gamepad.after('start', () => console.log('start'));
+                gamepad.after('select', () => {
+                    this.sidebarOpened = !this.sidebarOpened;
+                    this.cd.detectChanges();
+                });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadRight());
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right0')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadRight());
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right1')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadRight());
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadLeft());
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left0')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadLeft());
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left1')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(() => this.onGamepadLeft());
+            });
+        }
+    }
+    ngOnInit() {
+    }
+    onGamepadLeft() {
+        if (this.selectedIndex > 0) {
+            this.selectedIndex = this.selectedIndex - 1;
+            this.cd.detectChanges();
+        }
+    }
+    onGamepadRight() {
+        if (this.selectedIndex < this.cards$.value.length - 1) {
+            this.selectedIndex = this.selectedIndex + 1;
+            this.cd.detectChanges();
+        }
     }
     onWheel(event) {
         if (event.deltaY > 0) {
@@ -185,7 +234,8 @@ let AppComponent = class AppComponent {
     }
 };
 AppComponent.ctorParameters = () => [
-    { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] }
+    { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] }
 ];
 AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({

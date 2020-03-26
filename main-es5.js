@@ -39,15 +39,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! howler */ "./node_modules/howler/dist/howler.js");
 /* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(howler__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
+
 
 
 
 
 
 var AppComponent = /** @class */ (function () {
-    function AppComponent(http) {
+    function AppComponent(http, cd) {
         var _this = this;
         this.http = http;
+        this.cd = cd;
         this.sidebarOpened = false;
         this.swiperConfig = {
             slidesPerView: 'auto',
@@ -129,9 +132,6 @@ var AppComponent = /** @class */ (function () {
         else {
             console.warn('Electron\'s IPC was not loaded');
         }
-    }
-    AppComponent.prototype.ngOnInit = function () {
-        var _this = this;
         this.http.get('assets/data/cards.json').subscribe(function (cards) {
             _this.selectedCard = cards[_this.selectedIndex];
             _this.cards$.next(cards);
@@ -142,6 +142,54 @@ var AppComponent = /** @class */ (function () {
         this.http.get('assets/data/sounds.json').subscribe(function (sounds) {
             _this.sounds$.next(sounds);
         });
+        if (window.gameControl) {
+            window.gameControl.on('connect', function (gamepad) {
+                gamepad.after('button0', function () { return _this.onCardDblClick(_this.selectedCard); });
+                gamepad.after('button1', function () { return console.log('button1'); });
+                gamepad.after('button2', function () { return console.log('button2'); });
+                gamepad.after('button3', function () { return console.log('button3'); });
+                gamepad.after('button4', function () { return console.log('button4'); });
+                gamepad.after('button5', function () { return console.log('button5'); });
+                gamepad.after('button6', function () { return console.log('button6'); });
+                gamepad.after('start', function () { return console.log('start'); });
+                gamepad.after('select', function () {
+                    _this.sidebarOpened = !_this.sidebarOpened;
+                    _this.cd.detectChanges();
+                });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadRight(); });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right0')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadRight(); });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right1')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadRight(); });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadLeft(); });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left0')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadLeft(); });
+                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left1')
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                    .subscribe(function () { return _this.onGamepadLeft(); });
+            });
+        }
+    }
+    AppComponent.prototype.ngOnInit = function () {
+    };
+    AppComponent.prototype.onGamepadLeft = function () {
+        if (this.selectedIndex > 0) {
+            this.selectedIndex = this.selectedIndex - 1;
+            this.cd.detectChanges();
+        }
+    };
+    AppComponent.prototype.onGamepadRight = function () {
+        if (this.selectedIndex < this.cards$.value.length - 1) {
+            this.selectedIndex = this.selectedIndex + 1;
+            this.cd.detectChanges();
+        }
     };
     AppComponent.prototype.onWheel = function (event) {
         if (event.deltaY > 0) {
@@ -188,7 +236,8 @@ var AppComponent = /** @class */ (function () {
         });
     };
     AppComponent.ctorParameters = function () { return [
-        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] }
+        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
+        { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] }
     ]; };
     AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
