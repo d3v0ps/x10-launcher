@@ -30,7 +30,9 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/gamecontroller.js/dist/gamecontroller.min.js"
+            ]
           },
           "configurations": {
             "production": {

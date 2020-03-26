@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SwiperConfig } from 'ngx-swiper-wrapper';
 import { Howl, Howler } from 'howler';
 import { ShortcutInput } from 'ng-keyboard-shortcuts';
 import { IpcRenderer } from 'electron';
-import { Subject, BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Subject, BehaviorSubject, fromEvent } from 'rxjs';
+import { take, debounceTime, bufferCount } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -147,7 +147,8 @@ export class AppComponent implements OnInit {
   private ipc: IpcRenderer | undefined;
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private cd: ChangeDetectorRef
   ) {
     if (window.require) {
       try {
@@ -158,9 +159,7 @@ export class AppComponent implements OnInit {
     } else {
       console.warn('Electron\'s IPC was not loaded');
     }
-  }
 
-  ngOnInit() {
     this.http.get<any>('assets/data/cards.json').subscribe(
       cards => {
         this.selectedCard = cards[this.selectedIndex];
@@ -177,6 +176,72 @@ export class AppComponent implements OnInit {
         this.sounds$.next(sounds);
       }
     );
+
+    if ((window as any).gameControl) {
+      (window as any).gameControl.on('connect', (gamepad) => {
+        gamepad.after('button0', () => this.onCardDblClick(this.selectedCard));
+        gamepad.after('button1', () => console.log('button1'));
+        gamepad.after('button2', () => console.log('button2'));
+        gamepad.after('button3', () => console.log('button3'));
+        gamepad.after('button4', () => console.log('button4'));
+        gamepad.after('button5', () => console.log('button5'));
+        gamepad.after('button6', () => console.log('button6'));
+        gamepad.after('start', () => console.log('start'));
+        gamepad.after('select', () => {
+          this.sidebarOpened = !this.sidebarOpened;
+          this.cd.detectChanges();
+        });
+
+        fromEvent(gamepad, 'right')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadRight()
+          );
+        fromEvent(gamepad, 'right0')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadRight()
+          );
+        fromEvent(gamepad, 'right1')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadRight()
+          );
+
+        fromEvent(gamepad, 'left')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadLeft()
+          );
+        fromEvent(gamepad, 'left0')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadLeft()
+          );
+        fromEvent(gamepad, 'left1')
+          .pipe(bufferCount(10))
+          .subscribe(
+            () => this.onGamepadLeft()
+          );
+      });
+    }
+  }
+
+  ngOnInit() {
+  }
+
+  onGamepadLeft() {
+    if (this.selectedIndex > 0) {
+      this.selectedIndex = this.selectedIndex - 1;
+      this.cd.detectChanges();
+    }
+  }
+
+  onGamepadRight() {
+    if (this.selectedIndex < this.cards$.value.length - 1) {
+      this.selectedIndex = this.selectedIndex + 1;
+      this.cd.detectChanges();
+    }
   }
 
   onWheel(event: WheelEvent) {
