@@ -221,6 +221,8 @@ export class AppComponent implements OnInit {
       onend: () => {
         if (this.ipc) {
           this.ipc.send('open app', event);
+        } else {
+          window.open(event.url, 'blank');
         }
         event.opening = false;
       }

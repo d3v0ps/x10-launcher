@@ -50,15 +50,15 @@ body {
 
   .card {
     cursor: url('assets/cursor.png'), auto;
-    width: 300px !important;
-    height: 300px !important;
+    width: 400px !important;
+    height: 400px !important;
     overflow: hidden !important;
     &.active {
       border: 5px solid #0078d7;
     }
     img {
-      width: 300px !important;
-      height: 300px !important;
+      width: 400px !important;
+      height: 400px !important;
     }
   }
 }

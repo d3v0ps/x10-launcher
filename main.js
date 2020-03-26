@@ -4,6 +4,22 @@ const url = require('url');
 const wifi = require('node-wifi');
 const batteryLevel = require('battery-level');
 const shutdown = require('electron-shutdown-command');
+const AutoLaunch = require('auto-launch');
+const isDev = require('electron-is-dev');
+
+const autoLauncher = new AutoLaunch({
+  name: 'X10 Launcher',
+});
+
+if (!isDev) {
+  autoLauncher.isEnabled()
+    .then((isEnabled) => {
+        if(isEnabled){
+            return;
+        }
+        autoLauncher.enable();
+    });
+}
 
 wifi.init({
   iface: null // network interface, choose a random wifi interface if set to null
@@ -29,7 +45,9 @@ function createWindow () { //aqui procedemos a crear la ventana
   win.maximize();
   win.setFullScreen(true);
 
-  win.webContents.openDevTools();
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
 
 //esto se dispara cuando cerremos la ventana, igualamos win en null para liberar memoria
   win.on('closed', () => {

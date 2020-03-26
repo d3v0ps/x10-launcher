@@ -15,9 +15,24 @@
     "url": "https://www.primevideo.com/"
   },
   {
+    "name": "Ivoox",
+    "image": "assets/pictures/covers/ivoox.png",
+    "url": "https://www.ivoox.com/"
+  },
+  {
     "name": "RPG Maker MV",
     "image": "assets/pictures/covers/rpg-maker-mv.jpg",
     "url": "steam://rungameid/363890"
+  },
+  {
+    "name": "Chrono Trigger",
+    "image": "assets/pictures/covers/chrono-trigger.jpg",
+    "url": "steam://rungameid/613830"
+  },
+  {
+    "name": "Dragon Quest XI: Echoes of an Elusive Age",
+    "image": "assets/pictures/covers/dq-xi.jpg",
+    "url": "steam://rungameid/742120"
   },
   {
     "name": "Dragon Quest Builders 2",
@@ -25,9 +40,164 @@
     "url": "steam://rungameid/1072420"
   },
   {
+    "name": "Star Ocean 4: The Last Hope",
+    "image": "assets/pictures/covers/star-ocean-4.jpg",
+    "url": "steam://rungameid/609150"
+  },
+  {
+    "name": ".Hack//GU Last Recode",
+    "image": "assets/pictures/covers/hack-gu.jfif",
+    "url": "steam://rungameid/525480"
+  },
+  {
+    "name": "Tales of Symphonia",
+    "image": "assets/pictures/covers/tales-of-symphonia.jpg",
+    "url": "steam://rungameid/372360"
+  },
+  {
+    "name": "Tales of Vesperia",
+    "image": "assets/pictures/covers/tales-of-vesperia.jpg",
+    "url": "steam://rungameid/738540"
+  },
+  {
+    "name": "Tales of Zestiria",
+    "image": "assets/pictures/covers/tales-of-zestiria.jpg",
+    "url": "steam://rungameid/351970"
+  },
+  {
+    "name": "Tales of Berseria",
+    "image": "assets/pictures/covers/tales-of-berseria.jpg",
+    "url": "steam://rungameid/429660"
+  },
+  {
+    "name": "Valkyria Chronicles",
+    "image": "assets/pictures/covers/valkyria-chronicles.jpg",
+    "url": "steam://rungameid/294860"
+  },
+  {
+    "name": "Digimon Cyber Sleuth",
+    "image": "assets/pictures/covers/digimon-cyber-sleuth.jpg",
+    "url": "steam://rungameid/1042550"
+  },
+  {
+    "name": "World of Final Fantasy",
+    "image": "assets/pictures/covers/world-of-ff.jfif",
+    "url": "steam://rungameid/552700"
+  },
+  {
+    "name": "Brawlhalla",
+    "image": "assets/pictures/covers/brawlhalla.jpg",
+    "url": "steam://rungameid/291550"
+  },
+  {
+    "name": "Final Fantasy Dissidia NT",
+    "image": "assets/pictures/covers/ff-dissidia-nt.jfif",
+    "url": "steam://rungameid/921590"
+  },
+  {
+    "name": "Octopath Traveler",
+    "image": "assets/pictures/covers/octopath-traveler.jpg",
+    "url": "steam://rungameid/921570"
+  },
+  {
+    "name": "I am Setsuna",
+    "image": "assets/pictures/covers/i-am-setsuna.jpg",
+    "url": "steam://rungameid/441830"
+  },
+  {
+    "name": "Lost Sphear",
+    "image": "assets/pictures/covers/lost-sphear.jfif",
+    "url": "steam://rungameid/525240"
+  },
+  {
+    "name": "Romancing SaGa 2",
+    "image": "assets/pictures/covers/romancing-saga-2.jpg",
+    "url": "steam://rungameid/606370"
+  },
+  {
+    "name": "Romancing SaGa 3",
+    "image": "assets/pictures/covers/romancing-saga-3.jpg",
+    "url": "steam://rungameid/952540"
+  },
+  {
+    "name": "The Last Remnant",
+    "image": "assets/pictures/covers/the-last-remnant.jpg",
+    "url": "steam://rungameid/23310"
+  },
+  {
+    "name": "Final Fantasy III",
+    "image": "assets/pictures/covers/ff-iii.png",
+    "url": "steam://rungameid/239120"
+  },
+  {
+    "name": "Final Fantasy IV",
+    "image": "assets/pictures/covers/ff-iv.png",
+    "url": "steam://rungameid/312750"
+  },
+  {
+    "name": "Final Fantasy IV: The After Years",
+    "image": "assets/pictures/covers/ff-iv-ay.jfif",
+    "url": "steam://rungameid/346830"
+  },
+  {
+    "name": "Final Fantasy V",
+    "image": "assets/pictures/covers/ff-v.png",
+    "url": "steam://rungameid/382890"
+  },
+  {
+    "name": "Final Fantasy VI",
+    "image": "assets/pictures/covers/ff-vi.jfif",
+    "url": "steam://rungameid/382900"
+  },
+  {
+    "name": "Final Fantasy VII",
+    "image": "assets/pictures/covers/ff-vii.jpg",
+    "url": "steam://rungameid/39140"
+  },
+  {
+    "name": "Final Fantasy VIII",
+    "image": "assets/pictures/covers/ff-viii.jfif",
+    "url": "steam://rungameid/1026680"
+  },
+  {
+    "name": "Final Fantasy IX",
+    "image": "assets/pictures/covers/ff-ix.jfif",
+    "url": "steam://rungameid/377840"
+  },
+  {
+    "name": "Final Fantasy X",
+    "image": "assets/pictures/covers/ff-x.jpg",
+    "url": "steam://rungameid/359870"
+  },
+  {
+    "name": "Final Fantasy XII",
+    "image": "assets/pictures/covers/ff-xii.jpg",
+    "url": "steam://rungameid/595520"
+  },
+  {
+    "name": "Final Fantasy XIII",
+    "image": "assets/pictures/covers/ff-xiii.jpg",
+    "url": "steam://rungameid/292120"
+  },
+  {
+    "name": "Final Fantasy XIII-2",
+    "image": "assets/pictures/covers/ff-xiii-2.jpg",
+    "url": "steam://rungameid/292140"
+  },
+  {
+    "name": "Final Fantasy XIII-3",
+    "image": "assets/pictures/covers/ff-xiii-3.jpg",
+    "url": "steam://rungameid/345350"
+  },
+  {
     "name": "Final Fantasy XV",
     "image": "assets/pictures/covers/ff-xv.jpg",
     "url": "steam://rungameid/637650"
+  },
+  {
+    "name": "Final Fantasy Type-0",
+    "image": "assets/pictures/covers/ff-t0.jpg",
+    "url": "steam://rungameid/340170"
   },
   {
     "name": "Mount & Blade Warband",
