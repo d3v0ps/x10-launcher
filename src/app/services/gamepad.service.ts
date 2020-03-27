@@ -7,30 +7,30 @@ import { tap } from 'rxjs/operators';
 })
 export class GamepadService {
 
-  private _gameControl: any;
-  private _gamepad: any;
+  private gameControl: any;
+  private gamepad: any;
 
   constructor() {
     if ((window as any).gameControl) {
-      this._gameControl = (window as any).gameControl;
+      this.gameControl = (window as any).gameControl;
     }
 
   }
 
   connect() {
-    return fromEvent(this._gameControl, 'connect')
+    return fromEvent(this.gameControl, 'connect')
       .pipe(
-        tap(gamepad => this._gamepad = gamepad)
+        tap(gamepad => this.gamepad = gamepad)
       );
   }
 
   after(event: string) {
     return fromEventPattern(
-      handler => this._gamepad.after(event, handler)
+      handler => this.gamepad.after(event, handler)
     );
   }
 
   on(event: string) {
-    return fromEvent(this._gamepad, event);
+    return fromEvent(this.gamepad, event);
   }
 }

@@ -1,13 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { bufferCount } from 'rxjs/operators';
+
 import { SwiperConfig } from 'ngx-swiper-wrapper';
-import { Howl, Howler } from 'howler';
 import { ShortcutInput } from 'ng-keyboard-shortcuts';
-import { IpcRenderer } from 'electron';
-import { Subject, BehaviorSubject, fromEvent } from 'rxjs';
-import { take, debounceTime, bufferCount } from 'rxjs/operators';
+
 import { GamepadService } from './services/gamepad.service';
-import { IPCService } from './services/ipc.service';
+import { CardService } from './services/card.service';
+import { IconService } from './services/icon.service';
 
 @Component({
   selector: 'app-root',
@@ -32,16 +31,16 @@ import { IPCService } from './services/ipc.service';
         <div class="container-fluid" (wheel)="onWheel($event)">
 
           <div class="cards-container">
-            <h2>{{ selectedCard?.name }}</h2>
-            <swiper [config]="swiperConfig" [(index)]="selectedIndex" (indexChange)="onSwipeChange($event)">
-              <div class="card" *ngFor="let card of cards$ | async; let i = index"
-                (click)="onCardClick(card)"
-                (dblclick)="onCardDblClick(card)"
+            <h2>{{ card.selectedCard?.name }}</h2>
+            <swiper [config]="swiperConfig" [(index)]="card.selectedIndex" (indexChange)="onSwipeChange($event)">
+              <div class="card" *ngFor="let item of card.cards$ | async; let i = index"
+                (click)="onCardClick(item)"
+                (dblclick)="onCardDblClick(item)"
                 [ngClass]="{
-                  'active': i === selectedIndex,
-                  'animated pulse': card.opening
+                  'active': i === card.selectedIndex,
+                  'animated pulse': item.opening
                 }">
-                <img [src]="card.image">
+                <img [src]="item.image">
               </div>
             </swiper>
           </div>
@@ -51,9 +50,9 @@ import { IPCService } from './services/ipc.service';
         </div>
 
         <footer class="footer navbar pt-4 justify-content-between">
-            <div *ngFor="let icon of icons$ | async"
+            <div *ngFor="let icon of icon.icons$ | async"
               class="icon-container {{ icon.container }}"
-              (click)="onCardDblClick(icon)">
+              (click)="onIconClick(icon)">
               <i class="mdi mdi-{{ icon.icon }}"></i>
             </div>
         </footer>
@@ -62,7 +61,7 @@ import { IPCService } from './services/ipc.service';
     </ng-sidebar-container>
   `
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
   sidebarOpened = false;
 
@@ -87,7 +86,7 @@ export class AppComponent implements OnInit {
       label: 'Menu',
       preventDefault: true,
       description: 'Select Game or Application',
-      command: e => this.onCardDblClick(this.selectedCard)
+      command: e => this.card.openSelected()
     },
     {
       key: ['space'],
@@ -101,145 +100,79 @@ export class AppComponent implements OnInit {
       label: 'Apps',
       preventDefault: true,
       description: 'Open Spotify',
-      command: e => this.onCardDblClick(this.icons$.value.find(icon => icon.container === 'spotify'))
+      command: e => this.icon.openByName('spotify')
     },
     {
       key: ['cmd + c'],
       label: 'Apps',
       preventDefault: true,
       description: 'Open Code',
-      command: e => this.onCardDblClick(this.icons$.value.find(icon => icon.container === 'code'))
+      command: e => this.icon.openByName('code')
     },
     {
       key: ['cmd + e'],
       label: 'Apps',
       preventDefault: true,
       description: 'Open Explorer',
-      command: e => this.onCardDblClick(this.icons$.value.find(icon => icon.container === 'explorer'))
+      command: e => this.icon.openByName('explorer')
     },
     {
       key: ['cmd + b'],
       label: 'Apps',
       preventDefault: true,
       description: 'Open Browser',
-      command: e => this.onCardDblClick(this.icons$.value.find(icon => icon.container === 'edge'))
+      command: e => this.icon.openByName('edge')
     },
     {
       key: ['cmd + w'],
       label: 'Apps',
       preventDefault: true,
       description: 'Open Whatsapp',
-      command: e => this.onCardDblClick(this.icons$.value.find(icon => icon.container === 'whatsapp'))
+      command: e => this.icon.openByName('whatsapp')
     }
   ];
 
-  cards$ = new BehaviorSubject<{
-    name: string;
-    image: string;
-    url?: string;
-    opening?: boolean;
-  }[]>([]);
-
-  icons$ = new BehaviorSubject([]);
-  sounds$ = new BehaviorSubject<{ [key: string]: string; }>({});
-
-  selectedIndex = 0;
-  selectedCard = null;
-
   constructor(
-    private http: HttpClient,
     private cd: ChangeDetectorRef,
-    private ipc: IPCService,
     private gamepad: GamepadService,
+    public card: CardService,
+    public icon: IconService,
   ) {
-    this.fetchData();
     this.listenToGamepad();
   }
 
-  ngOnInit() {
-  }
-
   onGamepadLeft() {
-    if (this.selectedIndex > 0) {
-      this.selectedIndex = this.selectedIndex - 1;
-      this.cd.detectChanges();
-    }
+    this.card.selectPrevious();
+    this.cd.detectChanges();
   }
 
   onGamepadRight() {
-    if (this.selectedIndex < this.cards$.value.length - 1) {
-      this.selectedIndex = this.selectedIndex + 1;
-      this.cd.detectChanges();
-    }
+    this.card.selectNext();
+    this.cd.detectChanges();
   }
 
   onWheel(event: WheelEvent) {
     if (event.deltaY > 0) {
-      if (this.selectedIndex < this.cards$.value.length - 1) {
-        this.selectedIndex = this.selectedIndex + 1;
-      }
+      this.card.selectNext();
     } else {
-      if (this.selectedIndex > 0) {
-        this.selectedIndex = this.selectedIndex - 1;
-      }
+      this.card.selectPrevious();
     }
   }
 
   onSwipeChange(event) {
-    const sound = new Howl({
-      src: [this.sounds$.value.cardSelect],
-      autoplay: true,
-      onend: () => {
-        this.selectedCard = this.cards$.value[event];
-      }
-    });
+    this.card.onSelectedIndexChange();
   }
 
   onCardClick(event) {
-    this.selectedIndex = this.cards$.value.indexOf(event);
+    this.card.select(event);
   }
 
   onCardDblClick(event) {
-    this.cards$.value.forEach(
-      card => card.opening = false
-    );
-    this.icons$.value.forEach(
-      card => card.opening = false
-    );
-
-    event.opening = true;
-
-    const sound = new Howl({
-      src: [this.sounds$.value.cardOpen],
-      autoplay: true,
-      onend: () => {
-        if (this.ipc.isDefined()) {
-          this.ipc.send('open app', event);
-        } else {
-          window.open(event.url, 'blank');
-        }
-        event.opening = false;
-      }
-    });
+    this.card.open(event);
   }
 
-  private fetchData() {
-    this.http.get<any>('assets/data/cards.json').subscribe(
-      cards => {
-        this.selectedCard = cards[this.selectedIndex];
-        this.cards$.next(cards);
-      }
-    );
-    this.http.get<any>('assets/data/icons.json').subscribe(
-      icons => {
-        this.icons$.next(icons);
-      }
-    );
-    this.http.get<any>('assets/data/sounds.json').subscribe(
-      sounds => {
-        this.sounds$.next(sounds);
-      }
-    );
+  onIconClick(event) {
+    this.icon.open(event);
   }
 
   private listenToGamepad() {
@@ -248,7 +181,7 @@ export class AppComponent implements OnInit {
         () => {
 
           this.gamepad.after('button0')
-            .subscribe(() => this.onCardDblClick(this.selectedCard));
+            .subscribe(() => this.card.openSelected());
 
           this.gamepad.after('button1')
             .subscribe(() => console.log('button1'));

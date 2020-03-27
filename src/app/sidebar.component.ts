@@ -1,7 +1,7 @@
 
-import { Component, OnInit } from '@angular/core';
-import { IpcRenderer } from 'electron';
-import { IPCService } from './services/ipc.service';
+import { Component } from '@angular/core';
+
+import { SystemService } from './services/system.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,11 +10,11 @@ import { IPCService } from './services/ipc.service';
 
       <div class="row text-center" style="font-size: 30px;">
 
-        <div class="col-6">
-          <i class="mdi mdi-{{ wifiIcon }}"></i> {{ wifiConnection?.ssid }}
+        <div class="col-6" *ngIf="system.wifi$ | async as wifi">
+          <i class="mdi mdi-{{ wifi.icon }}"></i> {{ wifi?.ssid }}
         </div>
-        <div class="col-6">
-          <i class="mdi mdi-{{ batteryIcon }}"></i> {{ battery * 100 }}%
+        <div class="col-6" *ngIf="system.battery$ | async as battery">
+          <i class="mdi mdi-{{ battery.icon }}"></i> {{ battery.value * 100 }}%
         </div>
 
       </div>
@@ -35,15 +35,15 @@ import { IPCService } from './services/ipc.service';
 
         <div class="col-4">
           <i class="mdi mdi-power" style="color: #FD7272"
-            (click)="sendSystemSignal('shutdown')"></i>
+            (click)="onSystemIconClick('shutdown')"></i>
         </div>
         <div class="col-4">
           <i class="mdi mdi-restart" style="color: #58B19F"
-            (click)="sendSystemSignal('restart')"></i>
+            (click)="onSystemIconClick('restart')"></i>
         </div>
         <div class="col-4">
           <i class="mdi mdi-close" style="color: #FEA47F"
-            (click)="sendSystemSignal('close')"></i>
+            (click)="onSystemIconClick('close')"></i>
         </div>
 
       </div>
@@ -52,99 +52,13 @@ import { IPCService } from './services/ipc.service';
   `
 })
 
-export class SidebarComponent implements OnInit {
-
-  wifiIcon = 'wifi';
-  batteryIcon = 'battery';
-
-  set wifiConnection(value: any) {
-    this._wifiConnection = value;
-    const roundedSignal = Math.round((value.quality + Number.EPSILON) / 10);
-
-    switch (roundedSignal) {
-      case 0:
-        this.wifiIcon = 'wifi-strength-outline';
-        break;
-      case 1:
-        this.wifiIcon = 'wifi-strength-1';
-        break;
-      case 2:
-        this.wifiIcon = 'wifi-strength-1';
-        break;
-      case 3:
-        this.wifiIcon = 'wifi-strength-2';
-        break;
-      case 4:
-        this.wifiIcon = 'wifi-strength-2';
-        break;
-      case 5:
-        this.wifiIcon = 'wifi-strength-2';
-        break;
-      case 6:
-        this.wifiIcon = 'wifi-strength-3';
-        break;
-      case 7:
-        this.wifiIcon = 'wifi-strength-3';
-        break;
-      case 8:
-        this.wifiIcon = 'wifi-strength-3';
-        break;
-      case 9:
-        this.wifiIcon = 'wifi-strength-4';
-        break;
-      case 10:
-        this.wifiIcon = 'wifi-strength-4';
-        break;
-    }
-
-  }
-
-  get wifiConnection() {
-    return this._wifiConnection;
-  }
-
-  private _wifiConnection = {
-    ssid: 'NO WIFI'
-  };
-
-  set battery(value: any) {
-    this._battery = value;
-    const roundedLevel = Math.round((value + Number.EPSILON) * 10) * 10;
-
-    switch (roundedLevel) {
-      case 0:
-        this.batteryIcon = 'battery-outline';
-        break;
-      case 100:
-        this.batteryIcon = 'battery';
-        break;
-      default:
-        this.batteryIcon = 'battery-' + roundedLevel;
-    }
-  }
-
-  get battery() {
-    return this._battery;
-  }
-
-  private _battery = 1;
+export class SidebarComponent {
 
   constructor(
-    private ipc: IPCService
+    public system: SystemService
   ) {}
 
-  ngOnInit() {
-    this.ipc.send('get system metadata');
-
-    this.ipc.on('system metadata').subscribe(
-      metadata => {
-        this.wifiConnection = metadata.wifiConnections[0];
-        this.battery = metadata.battery;
-      }
-    );
-  }
-
-  sendSystemSignal(signal) {
-    this.ipc.send('system signal', signal);
+  onSystemIconClick(signal) {
+    this.system.sendSignal(signal);
   }
 }
