@@ -40,6 +40,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(howler__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
+/* harmony import */ var _services_gamepad_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./services/gamepad.service */ "./src/app/services/gamepad.service.ts");
+/* harmony import */ var _services_ipc_service__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./services/ipc.service */ "./src/app/services/ipc.service.ts");
+
+
 
 
 
@@ -47,10 +51,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var AppComponent = /** @class */ (function () {
-    function AppComponent(http, cd) {
+    function AppComponent(http, cd, ipc, gamepad) {
         var _this = this;
         this.http = http;
         this.cd = cd;
+        this.ipc = ipc;
+        this.gamepad = gamepad;
         this.sidebarOpened = false;
         this.swiperConfig = {
             slidesPerView: 'auto',
@@ -121,61 +127,8 @@ var AppComponent = /** @class */ (function () {
         this.sounds$ = new rxjs__WEBPACK_IMPORTED_MODULE_4__["BehaviorSubject"]({});
         this.selectedIndex = 0;
         this.selectedCard = null;
-        if (window.require) {
-            try {
-                this.ipc = window.require('electron').ipcRenderer;
-            }
-            catch (e) {
-                throw e;
-            }
-        }
-        else {
-            console.warn('Electron\'s IPC was not loaded');
-        }
-        this.http.get('assets/data/cards.json').subscribe(function (cards) {
-            _this.selectedCard = cards[_this.selectedIndex];
-            _this.cards$.next(cards);
-        });
-        this.http.get('assets/data/icons.json').subscribe(function (icons) {
-            _this.icons$.next(icons);
-        });
-        this.http.get('assets/data/sounds.json').subscribe(function (sounds) {
-            _this.sounds$.next(sounds);
-        });
-        if (window.gameControl) {
-            window.gameControl.on('connect', function (gamepad) {
-                gamepad.after('button0', function () { return _this.onCardDblClick(_this.selectedCard); });
-                gamepad.after('button1', function () { return console.log('button1'); });
-                gamepad.after('button2', function () { return console.log('button2'); });
-                gamepad.after('button3', function () { return console.log('button3'); });
-                gamepad.after('button4', function () { return console.log('button4'); });
-                gamepad.after('button5', function () { return console.log('button5'); });
-                gamepad.after('button6', function () { return console.log('button6'); });
-                gamepad.after('start', function () { return console.log('start'); });
-                gamepad.after('select', function () {
-                    _this.sidebarOpened = !_this.sidebarOpened;
-                    _this.cd.detectChanges();
-                });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadRight(); });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right0')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadRight(); });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'right1')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadRight(); });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadLeft(); });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left0')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadLeft(); });
-                Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["fromEvent"])(gamepad, 'left1')
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
-                    .subscribe(function () { return _this.onGamepadLeft(); });
-            });
-        }
+        this.fetchData();
+        this.listenToGamepad();
     }
     AppComponent.prototype.ngOnInit = function () {
     };
@@ -225,7 +178,7 @@ var AppComponent = /** @class */ (function () {
             src: [this.sounds$.value.cardOpen],
             autoplay: true,
             onend: function () {
-                if (_this.ipc) {
+                if (_this.ipc.isDefined()) {
                     _this.ipc.send('open app', event);
                 }
                 else {
@@ -235,9 +188,69 @@ var AppComponent = /** @class */ (function () {
             }
         });
     };
+    AppComponent.prototype.fetchData = function () {
+        var _this = this;
+        this.http.get('assets/data/cards.json').subscribe(function (cards) {
+            _this.selectedCard = cards[_this.selectedIndex];
+            _this.cards$.next(cards);
+        });
+        this.http.get('assets/data/icons.json').subscribe(function (icons) {
+            _this.icons$.next(icons);
+        });
+        this.http.get('assets/data/sounds.json').subscribe(function (sounds) {
+            _this.sounds$.next(sounds);
+        });
+    };
+    AppComponent.prototype.listenToGamepad = function () {
+        var _this = this;
+        this.gamepad.connect()
+            .subscribe(function () {
+            _this.gamepad.after('button0')
+                .subscribe(function () { return _this.onCardDblClick(_this.selectedCard); });
+            _this.gamepad.after('button1')
+                .subscribe(function () { return console.log('button1'); });
+            _this.gamepad.after('button2')
+                .subscribe(function () { return console.log('button2'); });
+            _this.gamepad.after('button3')
+                .subscribe(function () { return console.log('button3'); });
+            _this.gamepad.after('button4')
+                .subscribe(function () { return console.log('button4'); });
+            _this.gamepad.after('button5')
+                .subscribe(function () { return console.log('button5'); });
+            _this.gamepad.after('button6')
+                .subscribe(function () { return console.log('button6'); });
+            _this.gamepad.after('start')
+                .subscribe(function () { return console.log('start'); });
+            _this.gamepad.after('select')
+                .subscribe(function () { return function () {
+                _this.sidebarOpened = !_this.sidebarOpened;
+                _this.cd.detectChanges();
+            }; });
+            _this.gamepad.on('right')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadRight(); });
+            _this.gamepad.on('right0')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadRight(); });
+            _this.gamepad.on('right1')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadRight(); });
+            _this.gamepad.on('left')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadLeft(); });
+            _this.gamepad.on('left0')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadLeft(); });
+            _this.gamepad.on('left1')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .subscribe(function () { return _this.onGamepadLeft(); });
+        });
+    };
     AppComponent.ctorParameters = function () { return [
         { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
-        { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] }
+        { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] },
+        { type: _services_ipc_service__WEBPACK_IMPORTED_MODULE_7__["IPCService"] },
+        { type: _services_gamepad_service__WEBPACK_IMPORTED_MODULE_6__["GamepadService"] }
     ]; };
     AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
@@ -320,6 +333,115 @@ var AppModule = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/services/gamepad.service.ts":
+/*!*********************************************!*\
+  !*** ./src/app/services/gamepad.service.ts ***!
+  \*********************************************/
+/*! exports provided: GamepadService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GamepadService", function() { return GamepadService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
+
+
+
+
+var GamepadService = /** @class */ (function () {
+    function GamepadService() {
+        if (window.gameControl) {
+            this._gameControl = window.gameControl;
+        }
+    }
+    GamepadService.prototype.connect = function () {
+        var _this = this;
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this._gameControl, 'connect')
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["tap"])(function (gamepad) { return _this._gamepad = gamepad; }));
+    };
+    GamepadService.prototype.after = function (event) {
+        var _this = this;
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEventPattern"])(function (handler) { return _this._gamepad.after(event, handler); });
+    };
+    GamepadService.prototype.on = function (event) {
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this._gamepad, event);
+    };
+    GamepadService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], GamepadService);
+    return GamepadService;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/services/ipc.service.ts":
+/*!*****************************************!*\
+  !*** ./src/app/services/ipc.service.ts ***!
+  \*****************************************/
+/*! exports provided: IPCService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IPCService", function() { return IPCService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+
+
+
+var IPCService = /** @class */ (function () {
+    function IPCService() {
+        if (window.require) {
+            try {
+                this.ipc = window.require('electron').ipcRenderer;
+            }
+            catch (e) {
+                throw e;
+            }
+        }
+        else {
+            console.warn('Electron\'s IPC was not loaded');
+        }
+    }
+    IPCService.prototype.isDefined = function () {
+        return this.ipc ? true : false;
+    };
+    IPCService.prototype.send = function (event) {
+        var _a;
+        var params = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
+        }
+        if (this.ipc) {
+            (_a = this.ipc).send.apply(_a, tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"]([event], params));
+        }
+    };
+    IPCService.prototype.on = function (event) {
+        if (this.ipc) {
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this.ipc, event);
+        }
+        return new rxjs__WEBPACK_IMPORTED_MODULE_2__["Observable"]();
+    };
+    IPCService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], IPCService);
+    return IPCService;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/sidebar.component.ts":
 /*!**************************************!*\
   !*** ./src/app/sidebar.component.ts ***!
@@ -332,27 +454,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SidebarComponent", function() { return SidebarComponent; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _services_ipc_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./services/ipc.service */ "./src/app/services/ipc.service.ts");
+
 
 
 var SidebarComponent = /** @class */ (function () {
-    function SidebarComponent() {
+    function SidebarComponent(ipc) {
+        this.ipc = ipc;
         this.wifiIcon = 'wifi';
         this.batteryIcon = 'battery';
         this._wifiConnection = {
             ssid: 'NO WIFI'
         };
         this._battery = 1;
-        if (window.require) {
-            try {
-                this.ipc = window.require('electron').ipcRenderer;
-            }
-            catch (e) {
-                throw e;
-            }
-        }
-        else {
-            console.warn('Electron\'s IPC was not loaded');
-        }
     }
     Object.defineProperty(SidebarComponent.prototype, "wifiConnection", {
         get: function () {
@@ -423,19 +537,18 @@ var SidebarComponent = /** @class */ (function () {
     });
     SidebarComponent.prototype.ngOnInit = function () {
         var _this = this;
-        if (this.ipc) {
-            this.ipc.send('get system metadata');
-            this.ipc.on('system metadata', function (event, metadata) {
-                _this.wifiConnection = metadata.wifiConnections[0];
-                _this.battery = metadata.battery;
-            });
-        }
+        this.ipc.send('get system metadata');
+        this.ipc.on('system metadata').subscribe(function (metadata) {
+            _this.wifiConnection = metadata.wifiConnections[0];
+            _this.battery = metadata.battery;
+        });
     };
     SidebarComponent.prototype.sendSystemSignal = function (signal) {
-        if (this.ipc) {
-            this.ipc.send('system signal', signal);
-        }
+        this.ipc.send('system signal', signal);
     };
+    SidebarComponent.ctorParameters = function () { return [
+        { type: _services_ipc_service__WEBPACK_IMPORTED_MODULE_2__["IPCService"] }
+    ]; };
     SidebarComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
             selector: 'app-sidebar',
