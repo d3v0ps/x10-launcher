@@ -6,6 +6,8 @@ import { ShortcutInput } from 'ng-keyboard-shortcuts';
 import { IpcRenderer } from 'electron';
 import { Subject, BehaviorSubject, fromEvent } from 'rxjs';
 import { take, debounceTime, bufferCount } from 'rxjs/operators';
+import { GamepadService } from './services/gamepad.service';
+import { IPCService } from './services/ipc.service';
 
 @Component({
   selector: 'app-root',
@@ -144,87 +146,14 @@ export class AppComponent implements OnInit {
   selectedIndex = 0;
   selectedCard = null;
 
-  private ipc: IpcRenderer | undefined;
-
   constructor(
     private http: HttpClient,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private ipc: IPCService,
+    private gamepad: GamepadService,
   ) {
-    if (window.require) {
-      try {
-        this.ipc = window.require('electron').ipcRenderer;
-      } catch (e) {
-        throw e;
-      }
-    } else {
-      console.warn('Electron\'s IPC was not loaded');
-    }
-
-    this.http.get<any>('assets/data/cards.json').subscribe(
-      cards => {
-        this.selectedCard = cards[this.selectedIndex];
-        this.cards$.next(cards);
-      }
-    );
-    this.http.get<any>('assets/data/icons.json').subscribe(
-      icons => {
-        this.icons$.next(icons);
-      }
-    );
-    this.http.get<any>('assets/data/sounds.json').subscribe(
-      sounds => {
-        this.sounds$.next(sounds);
-      }
-    );
-
-    if ((window as any).gameControl) {
-      (window as any).gameControl.on('connect', (gamepad) => {
-        gamepad.after('button0', () => this.onCardDblClick(this.selectedCard));
-        gamepad.after('button1', () => console.log('button1'));
-        gamepad.after('button2', () => console.log('button2'));
-        gamepad.after('button3', () => console.log('button3'));
-        gamepad.after('button4', () => console.log('button4'));
-        gamepad.after('button5', () => console.log('button5'));
-        gamepad.after('button6', () => console.log('button6'));
-        gamepad.after('start', () => console.log('start'));
-        gamepad.after('select', () => {
-          this.sidebarOpened = !this.sidebarOpened;
-          this.cd.detectChanges();
-        });
-
-        fromEvent(gamepad, 'right')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadRight()
-          );
-        fromEvent(gamepad, 'right0')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadRight()
-          );
-        fromEvent(gamepad, 'right1')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadRight()
-          );
-
-        fromEvent(gamepad, 'left')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadLeft()
-          );
-        fromEvent(gamepad, 'left0')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadLeft()
-          );
-        fromEvent(gamepad, 'left1')
-          .pipe(bufferCount(10))
-          .subscribe(
-            () => this.onGamepadLeft()
-          );
-      });
-    }
+    this.fetchData();
+    this.listenToGamepad();
   }
 
   ngOnInit() {
@@ -284,7 +213,7 @@ export class AppComponent implements OnInit {
       src: [this.sounds$.value.cardOpen],
       autoplay: true,
       onend: () => {
-        if (this.ipc) {
+        if (this.ipc.isDefined()) {
           this.ipc.send('open app', event);
         } else {
           window.open(event.url, 'blank');
@@ -292,5 +221,96 @@ export class AppComponent implements OnInit {
         event.opening = false;
       }
     });
+  }
+
+  private fetchData() {
+    this.http.get<any>('assets/data/cards.json').subscribe(
+      cards => {
+        this.selectedCard = cards[this.selectedIndex];
+        this.cards$.next(cards);
+      }
+    );
+    this.http.get<any>('assets/data/icons.json').subscribe(
+      icons => {
+        this.icons$.next(icons);
+      }
+    );
+    this.http.get<any>('assets/data/sounds.json').subscribe(
+      sounds => {
+        this.sounds$.next(sounds);
+      }
+    );
+  }
+
+  private listenToGamepad() {
+    this.gamepad.connect()
+      .subscribe(
+        () => {
+
+          this.gamepad.after('button0')
+            .subscribe(() => this.onCardDblClick(this.selectedCard));
+
+          this.gamepad.after('button1')
+            .subscribe(() => console.log('button1'));
+
+          this.gamepad.after('button2')
+            .subscribe(() => console.log('button2'));
+
+          this.gamepad.after('button3')
+            .subscribe(() => console.log('button3'));
+
+          this.gamepad.after('button4')
+            .subscribe(() => console.log('button4'));
+
+          this.gamepad.after('button5')
+            .subscribe(() => console.log('button5'));
+
+          this.gamepad.after('button6')
+            .subscribe(() => console.log('button6'));
+
+          this.gamepad.after('start')
+            .subscribe(() => console.log('start'));
+
+          this.gamepad.after('select')
+            .subscribe(() => () => {
+              this.sidebarOpened = !this.sidebarOpened;
+              this.cd.detectChanges();
+            });
+
+          this.gamepad.on('right')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadRight()
+            );
+          this.gamepad.on('right0')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadRight()
+            );
+          this.gamepad.on('right1')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadRight()
+            );
+
+          this.gamepad.on('left')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadLeft()
+            );
+          this.gamepad.on('left0')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadLeft()
+            );
+          this.gamepad.on('left1')
+            .pipe(bufferCount(10))
+            .subscribe(
+              () => this.onGamepadLeft()
+            );
+
+
+        }
+      );
   }
 }

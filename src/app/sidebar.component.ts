@@ -1,6 +1,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { IpcRenderer } from 'electron';
+import { IPCService } from './services/ipc.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -128,37 +129,22 @@ export class SidebarComponent implements OnInit {
 
   private _battery = 1;
 
-
-  private ipc: IpcRenderer | undefined;
-
-  constructor() {
-    if (window.require) {
-      try {
-        this.ipc = window.require('electron').ipcRenderer;
-      } catch (e) {
-        throw e;
-      }
-    } else {
-      console.warn('Electron\'s IPC was not loaded');
-    }
-  }
+  constructor(
+    private ipc: IPCService
+  ) {}
 
   ngOnInit() {
+    this.ipc.send('get system metadata');
 
-    if (this.ipc) {
-      this.ipc.send('get system metadata');
-
-      this.ipc.on('system metadata', (event, metadata) => {
+    this.ipc.on('system metadata').subscribe(
+      metadata => {
         this.wifiConnection = metadata.wifiConnections[0];
         this.battery = metadata.battery;
-      });
-    }
-
+      }
+    );
   }
 
   sendSystemSignal(signal) {
-    if (this.ipc) {
-      this.ipc.send('system signal', signal);
-    }
+    this.ipc.send('system signal', signal);
   }
 }
