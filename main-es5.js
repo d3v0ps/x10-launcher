@@ -35,15 +35,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppComponent", function() { return AppComponent; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
-/* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! howler */ "./node_modules/howler/dist/howler.js");
-/* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(howler__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
-/* harmony import */ var _services_gamepad_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./services/gamepad.service */ "./src/app/services/gamepad.service.ts");
-/* harmony import */ var _services_ipc_service__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./services/ipc.service */ "./src/app/services/ipc.service.ts");
-
-
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
+/* harmony import */ var _services_gamepad_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/gamepad.service */ "./src/app/services/gamepad.service.ts");
+/* harmony import */ var _services_card_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/card.service */ "./src/app/services/card.service.ts");
+/* harmony import */ var _services_icon_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./services/icon.service */ "./src/app/services/icon.service.ts");
 
 
 
@@ -51,12 +46,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var AppComponent = /** @class */ (function () {
-    function AppComponent(http, cd, ipc, gamepad) {
+    function AppComponent(cd, gamepad, card, icon) {
         var _this = this;
-        this.http = http;
         this.cd = cd;
-        this.ipc = ipc;
         this.gamepad = gamepad;
+        this.card = card;
+        this.icon = icon;
         this.sidebarOpened = false;
         this.swiperConfig = {
             slidesPerView: 'auto',
@@ -77,7 +72,7 @@ var AppComponent = /** @class */ (function () {
                 label: 'Menu',
                 preventDefault: true,
                 description: 'Select Game or Application',
-                command: function (e) { return _this.onCardDblClick(_this.selectedCard); }
+                command: function (e) { return _this.card.openSelected(); }
             },
             {
                 key: ['space'],
@@ -91,122 +86,73 @@ var AppComponent = /** @class */ (function () {
                 label: 'Apps',
                 preventDefault: true,
                 description: 'Open Spotify',
-                command: function (e) { return _this.onCardDblClick(_this.icons$.value.find(function (icon) { return icon.container === 'spotify'; })); }
+                command: function (e) { return _this.icon.openByName('spotify'); }
             },
             {
                 key: ['cmd + c'],
                 label: 'Apps',
                 preventDefault: true,
                 description: 'Open Code',
-                command: function (e) { return _this.onCardDblClick(_this.icons$.value.find(function (icon) { return icon.container === 'code'; })); }
+                command: function (e) { return _this.icon.openByName('code'); }
             },
             {
                 key: ['cmd + e'],
                 label: 'Apps',
                 preventDefault: true,
                 description: 'Open Explorer',
-                command: function (e) { return _this.onCardDblClick(_this.icons$.value.find(function (icon) { return icon.container === 'explorer'; })); }
+                command: function (e) { return _this.icon.openByName('explorer'); }
             },
             {
                 key: ['cmd + b'],
                 label: 'Apps',
                 preventDefault: true,
                 description: 'Open Browser',
-                command: function (e) { return _this.onCardDblClick(_this.icons$.value.find(function (icon) { return icon.container === 'edge'; })); }
+                command: function (e) { return _this.icon.openByName('edge'); }
             },
             {
                 key: ['cmd + w'],
                 label: 'Apps',
                 preventDefault: true,
                 description: 'Open Whatsapp',
-                command: function (e) { return _this.onCardDblClick(_this.icons$.value.find(function (icon) { return icon.container === 'whatsapp'; })); }
+                command: function (e) { return _this.icon.openByName('whatsapp'); }
             }
         ];
-        this.cards$ = new rxjs__WEBPACK_IMPORTED_MODULE_4__["BehaviorSubject"]([]);
-        this.icons$ = new rxjs__WEBPACK_IMPORTED_MODULE_4__["BehaviorSubject"]([]);
-        this.sounds$ = new rxjs__WEBPACK_IMPORTED_MODULE_4__["BehaviorSubject"]({});
-        this.selectedIndex = 0;
-        this.selectedCard = null;
-        this.fetchData();
         this.listenToGamepad();
     }
-    AppComponent.prototype.ngOnInit = function () {
-    };
     AppComponent.prototype.onGamepadLeft = function () {
-        if (this.selectedIndex > 0) {
-            this.selectedIndex = this.selectedIndex - 1;
-            this.cd.detectChanges();
-        }
+        this.card.selectPrevious();
+        this.cd.detectChanges();
     };
     AppComponent.prototype.onGamepadRight = function () {
-        if (this.selectedIndex < this.cards$.value.length - 1) {
-            this.selectedIndex = this.selectedIndex + 1;
-            this.cd.detectChanges();
-        }
+        this.card.selectNext();
+        this.cd.detectChanges();
     };
     AppComponent.prototype.onWheel = function (event) {
         if (event.deltaY > 0) {
-            if (this.selectedIndex < this.cards$.value.length - 1) {
-                this.selectedIndex = this.selectedIndex + 1;
-            }
+            this.card.selectNext();
         }
         else {
-            if (this.selectedIndex > 0) {
-                this.selectedIndex = this.selectedIndex - 1;
-            }
+            this.card.selectPrevious();
         }
     };
     AppComponent.prototype.onSwipeChange = function (event) {
-        var _this = this;
-        var sound = new howler__WEBPACK_IMPORTED_MODULE_3__["Howl"]({
-            src: [this.sounds$.value.cardSelect],
-            autoplay: true,
-            onend: function () {
-                _this.selectedCard = _this.cards$.value[event];
-            }
-        });
+        this.card.onSelectedIndexChange();
     };
     AppComponent.prototype.onCardClick = function (event) {
-        this.selectedIndex = this.cards$.value.indexOf(event);
+        this.card.select(event);
     };
     AppComponent.prototype.onCardDblClick = function (event) {
-        var _this = this;
-        this.cards$.value.forEach(function (card) { return card.opening = false; });
-        this.icons$.value.forEach(function (card) { return card.opening = false; });
-        event.opening = true;
-        var sound = new howler__WEBPACK_IMPORTED_MODULE_3__["Howl"]({
-            src: [this.sounds$.value.cardOpen],
-            autoplay: true,
-            onend: function () {
-                if (_this.ipc.isDefined()) {
-                    _this.ipc.send('open app', event);
-                }
-                else {
-                    window.open(event.url, 'blank');
-                }
-                event.opening = false;
-            }
-        });
+        this.card.open(event);
     };
-    AppComponent.prototype.fetchData = function () {
-        var _this = this;
-        this.http.get('assets/data/cards.json').subscribe(function (cards) {
-            _this.selectedCard = cards[_this.selectedIndex];
-            _this.cards$.next(cards);
-        });
-        this.http.get('assets/data/icons.json').subscribe(function (icons) {
-            _this.icons$.next(icons);
-        });
-        this.http.get('assets/data/sounds.json').subscribe(function (sounds) {
-            _this.sounds$.next(sounds);
-        });
+    AppComponent.prototype.onIconClick = function (event) {
+        this.icon.open(event);
     };
     AppComponent.prototype.listenToGamepad = function () {
         var _this = this;
         this.gamepad.connect()
             .subscribe(function () {
             _this.gamepad.after('button0')
-                .subscribe(function () { return _this.onCardDblClick(_this.selectedCard); });
+                .subscribe(function () { return _this.card.openSelected(); });
             _this.gamepad.after('button1')
                 .subscribe(function () { return console.log('button1'); });
             _this.gamepad.after('button2')
@@ -227,35 +173,35 @@ var AppComponent = /** @class */ (function () {
                 _this.cd.detectChanges();
             }; });
             _this.gamepad.on('right')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadRight(); });
             _this.gamepad.on('right0')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadRight(); });
             _this.gamepad.on('right1')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadRight(); });
             _this.gamepad.on('left')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadLeft(); });
             _this.gamepad.on('left0')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadLeft(); });
             _this.gamepad.on('left1')
-                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["bufferCount"])(10))
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["bufferCount"])(10))
                 .subscribe(function () { return _this.onGamepadLeft(); });
         });
     };
     AppComponent.ctorParameters = function () { return [
-        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
         { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] },
-        { type: _services_ipc_service__WEBPACK_IMPORTED_MODULE_7__["IPCService"] },
-        { type: _services_gamepad_service__WEBPACK_IMPORTED_MODULE_6__["GamepadService"] }
+        { type: _services_gamepad_service__WEBPACK_IMPORTED_MODULE_3__["GamepadService"] },
+        { type: _services_card_service__WEBPACK_IMPORTED_MODULE_4__["CardService"] },
+        { type: _services_icon_service__WEBPACK_IMPORTED_MODULE_5__["IconService"] }
     ]; };
     AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
             selector: 'app-root',
-            template: "\n    <ng-sidebar-container style=\"height: 100vh;\">\n\n      <!-- A sidebar -->\n      <ng-sidebar [(opened)]=\"sidebarOpened\" position=\"right\" showBackdrop=\"true\" closeOnClickBackdrop=\"true\">\n        <app-sidebar></app-sidebar>\n      </ng-sidebar>\n\n      <!-- Page content -->\n      <div ng-sidebar-content>\n\n        <ng-keyboard-shortcuts [shortcuts]=\"shortcuts\"></ng-keyboard-shortcuts>\n        <ng-keyboard-shortcuts-help [key]=\"'?'\" [closeKey]=\"'escape'\" [title]=\"'Help'\"></ng-keyboard-shortcuts-help>\n        <!-- app-header></app-header -->\n\n        <i class=\"sidebar-button mdi mdi-backburger\"\n          (click)=\"sidebarOpened = !sidebarOpened\"></i>\n\n        <div class=\"container-fluid\" (wheel)=\"onWheel($event)\">\n\n          <div class=\"cards-container\">\n            <h2>{{ selectedCard?.name }}</h2>\n            <swiper [config]=\"swiperConfig\" [(index)]=\"selectedIndex\" (indexChange)=\"onSwipeChange($event)\">\n              <div class=\"card\" *ngFor=\"let card of cards$ | async; let i = index\"\n                (click)=\"onCardClick(card)\"\n                (dblclick)=\"onCardDblClick(card)\"\n                [ngClass]=\"{\n                  'active': i === selectedIndex,\n                  'animated pulse': card.opening\n                }\">\n                <img [src]=\"card.image\">\n              </div>\n            </swiper>\n          </div>\n\n          <div class=\"swiper-pagination\"></div>\n\n        </div>\n\n        <footer class=\"footer navbar pt-4 justify-content-between\">\n            <div *ngFor=\"let icon of icons$ | async\"\n              class=\"icon-container {{ icon.container }}\"\n              (click)=\"onCardDblClick(icon)\">\n              <i class=\"mdi mdi-{{ icon.icon }}\"></i>\n            </div>\n        </footer>\n\n      </div>\n    </ng-sidebar-container>\n  "
+            template: "\n    <ng-sidebar-container style=\"height: 100vh;\">\n\n      <!-- A sidebar -->\n      <ng-sidebar [(opened)]=\"sidebarOpened\" position=\"right\" showBackdrop=\"true\" closeOnClickBackdrop=\"true\">\n        <app-sidebar></app-sidebar>\n      </ng-sidebar>\n\n      <!-- Page content -->\n      <div ng-sidebar-content>\n\n        <ng-keyboard-shortcuts [shortcuts]=\"shortcuts\"></ng-keyboard-shortcuts>\n        <ng-keyboard-shortcuts-help [key]=\"'?'\" [closeKey]=\"'escape'\" [title]=\"'Help'\"></ng-keyboard-shortcuts-help>\n        <!-- app-header></app-header -->\n\n        <i class=\"sidebar-button mdi mdi-backburger\"\n          (click)=\"sidebarOpened = !sidebarOpened\"></i>\n\n        <div class=\"container-fluid\" (wheel)=\"onWheel($event)\">\n\n          <div class=\"cards-container\">\n            <h2>{{ card.selectedCard?.name }}</h2>\n            <swiper [config]=\"swiperConfig\" [(index)]=\"card.selectedIndex\" (indexChange)=\"onSwipeChange($event)\">\n              <div class=\"card\" *ngFor=\"let item of card.cards$ | async; let i = index\"\n                (click)=\"onCardClick(item)\"\n                (dblclick)=\"onCardDblClick(item)\"\n                [ngClass]=\"{\n                  'active': i === card.selectedIndex,\n                  'animated pulse': item.opening\n                }\">\n                <img [src]=\"item.image\">\n              </div>\n            </swiper>\n          </div>\n\n          <div class=\"swiper-pagination\"></div>\n\n        </div>\n\n        <footer class=\"footer navbar pt-4 justify-content-between\">\n            <div *ngFor=\"let icon of icon.icons$ | async\"\n              class=\"icon-container {{ icon.container }}\"\n              (click)=\"onIconClick(icon)\">\n              <i class=\"mdi mdi-{{ icon.icon }}\"></i>\n            </div>\n        </footer>\n\n      </div>\n    </ng-sidebar-container>\n  "
         })
     ], AppComponent);
     return AppComponent;
@@ -333,6 +279,167 @@ var AppModule = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/models/battery.ts":
+/*!***********************************!*\
+  !*** ./src/app/models/battery.ts ***!
+  \***********************************/
+/*! exports provided: Battery */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Battery", function() { return Battery; });
+var Battery = /** @class */ (function () {
+    function Battery(value) {
+        this.value = value;
+        this.icon = 'battery-outline';
+        var roundedLevel = Math.round((value + Number.EPSILON) * 10) * 10;
+        switch (roundedLevel) {
+            case 0:
+                this.icon = 'battery-outline';
+                break;
+            case 100:
+                this.icon = 'battery';
+                break;
+            default:
+                this.icon = "battery-" + roundedLevel;
+        }
+    }
+    Battery.ctorParameters = function () { return [
+        { type: Number }
+    ]; };
+    return Battery;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/models/wifi-connection.ts":
+/*!*******************************************!*\
+  !*** ./src/app/models/wifi-connection.ts ***!
+  \*******************************************/
+/*! exports provided: WifiConnection */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WifiConnection", function() { return WifiConnection; });
+var wifiIcons = {
+    0: 'strength-outline',
+    1: 'strength-1',
+    2: 'strength-1',
+    3: 'strength-2',
+    4: 'strength-2',
+    5: 'strength-2',
+    6: 'strength-2',
+    7: 'strength-3',
+    8: 'strength-3',
+    9: 'strength-4',
+    10: 'strength-4',
+};
+var WifiConnection = /** @class */ (function () {
+    function WifiConnection(data) {
+        this.ssid = 'NO WIFI CONNECTION';
+        this.icon = 'wifi-strength-outline';
+        Object.assign(this, data);
+        var roundedSignal = Math.round((data.quality + Number.EPSILON) / 10);
+        this.icon = "wifi-" + wifiIcons[roundedSignal];
+    }
+    WifiConnection.ctorParameters = function () { return [
+        { type: undefined }
+    ]; };
+    return WifiConnection;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/services/card.service.ts":
+/*!******************************************!*\
+  !*** ./src/app/services/card.service.ts ***!
+  \******************************************/
+/*! exports provided: CardService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CardService", function() { return CardService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _sound_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sound.service */ "./src/app/services/sound.service.ts");
+/* harmony import */ var _system_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./system.service */ "./src/app/services/system.service.ts");
+
+
+
+
+
+
+var CardService = /** @class */ (function () {
+    function CardService(http, sound, system) {
+        var _this = this;
+        this.http = http;
+        this.sound = sound;
+        this.system = system;
+        this.selectedIndex = 0;
+        this.selectedCard = null;
+        this.cards$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["BehaviorSubject"]([]);
+        this.http.get('assets/data/cards.json').subscribe(function (cards) {
+            _this.selectedCard = cards[_this.selectedIndex];
+            _this.cards$.next(cards);
+        });
+    }
+    CardService.prototype.select = function (card) {
+        this.selectedIndex = this.cards$.value.indexOf(card);
+    };
+    CardService.prototype.selectNext = function () {
+        if (this.selectedIndex < this.cards$.value.length - 1) {
+            this.selectedIndex = this.selectedIndex + 1;
+        }
+    };
+    CardService.prototype.selectPrevious = function () {
+        if (this.selectedIndex > 0) {
+            this.selectedIndex = this.selectedIndex - 1;
+        }
+    };
+    CardService.prototype.onSelectedIndexChange = function () {
+        var _this = this;
+        this.sound.play('cardSelect')
+            .subscribe(function () { return _this.selectedCard = _this.cards$.value[_this.selectedIndex]; });
+    };
+    CardService.prototype.open = function (card) {
+        var _this = this;
+        this.cards$.value.forEach(function (valueCard) { return valueCard.opening = false; });
+        card.opening = true;
+        this.sound.play('cardOpen')
+            .subscribe(function () {
+            _this.system.openApp(card);
+            card.opening = false;
+        });
+    };
+    CardService.prototype.openSelected = function () {
+        return this.open(this.selectedCard);
+    };
+    CardService.ctorParameters = function () { return [
+        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
+        { type: _sound_service__WEBPACK_IMPORTED_MODULE_4__["SoundService"] },
+        { type: _system_service__WEBPACK_IMPORTED_MODULE_5__["SystemService"] }
+    ]; };
+    CardService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], CardService);
+    return CardService;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/services/gamepad.service.ts":
 /*!*********************************************!*\
   !*** ./src/app/services/gamepad.service.ts ***!
@@ -354,20 +461,20 @@ __webpack_require__.r(__webpack_exports__);
 var GamepadService = /** @class */ (function () {
     function GamepadService() {
         if (window.gameControl) {
-            this._gameControl = window.gameControl;
+            this.gameControl = window.gameControl;
         }
     }
     GamepadService.prototype.connect = function () {
         var _this = this;
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this._gameControl, 'connect')
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["tap"])(function (gamepad) { return _this._gamepad = gamepad; }));
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this.gameControl, 'connect')
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["tap"])(function (gamepad) { return _this.gamepad = gamepad; }));
     };
     GamepadService.prototype.after = function (event) {
         var _this = this;
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEventPattern"])(function (handler) { return _this._gamepad.after(event, handler); });
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEventPattern"])(function (handler) { return _this.gamepad.after(event, handler); });
     };
     GamepadService.prototype.on = function (event) {
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this._gamepad, event);
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this.gamepad, event);
     };
     GamepadService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
@@ -375,6 +482,70 @@ var GamepadService = /** @class */ (function () {
         })
     ], GamepadService);
     return GamepadService;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/services/icon.service.ts":
+/*!******************************************!*\
+  !*** ./src/app/services/icon.service.ts ***!
+  \******************************************/
+/*! exports provided: IconService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IconService", function() { return IconService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _sound_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sound.service */ "./src/app/services/sound.service.ts");
+/* harmony import */ var _system_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./system.service */ "./src/app/services/system.service.ts");
+
+
+
+
+
+
+var IconService = /** @class */ (function () {
+    function IconService(http, sound, system) {
+        var _this = this;
+        this.http = http;
+        this.sound = sound;
+        this.system = system;
+        this.icons$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["BehaviorSubject"]([]);
+        this.http.get('assets/data/icons.json').subscribe(function (icons) {
+            _this.icons$.next(icons);
+        });
+    }
+    IconService.prototype.open = function (icon) {
+        var _this = this;
+        this.icons$.value.forEach(function (valueCard) { return valueCard.opening = false; });
+        icon.opening = true;
+        this.sound.play('cardOpen')
+            .subscribe(function () {
+            _this.system.openApp(icon);
+            icon.opening = false;
+        });
+    };
+    IconService.prototype.openByName = function (name) {
+        var icon = this.icons$.value.find(function (iconValue) { return iconValue.container === name; });
+        return this.open(icon);
+    };
+    IconService.ctorParameters = function () { return [
+        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] },
+        { type: _sound_service__WEBPACK_IMPORTED_MODULE_4__["SoundService"] },
+        { type: _system_service__WEBPACK_IMPORTED_MODULE_5__["SystemService"] }
+    ]; };
+    IconService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], IconService);
+    return IconService;
 }());
 
 
@@ -442,6 +613,121 @@ var IPCService = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/services/sound.service.ts":
+/*!*******************************************!*\
+  !*** ./src/app/services/sound.service.ts ***!
+  \*******************************************/
+/*! exports provided: SoundService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SoundService", function() { return SoundService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! howler */ "./node_modules/howler/dist/howler.js");
+/* harmony import */ var howler__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(howler__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+
+
+var SoundService = /** @class */ (function () {
+    function SoundService(http) {
+        var _this = this;
+        this.http = http;
+        this.sounds$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["BehaviorSubject"]({});
+        this.http.get('assets/data/sounds.json').subscribe(function (sounds) {
+            _this.sounds$.next(sounds);
+        });
+    }
+    SoundService.prototype.play = function (soundName) {
+        var sound = new howler__WEBPACK_IMPORTED_MODULE_4__["Howl"]({
+            src: [this.sounds$.value[soundName]],
+            autoplay: true
+        });
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["fromEvent"])(sound, 'end');
+    };
+    SoundService.ctorParameters = function () { return [
+        { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] }
+    ]; };
+    SoundService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], SoundService);
+    return SoundService;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/services/system.service.ts":
+/*!********************************************!*\
+  !*** ./src/app/services/system.service.ts ***!
+  \********************************************/
+/*! exports provided: SystemService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SystemService", function() { return SystemService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _ipc_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ipc.service */ "./src/app/services/ipc.service.ts");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _models_wifi_connection__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../models/wifi-connection */ "./src/app/models/wifi-connection.ts");
+/* harmony import */ var _models_battery__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../models/battery */ "./src/app/models/battery.ts");
+
+
+
+
+
+
+var SystemService = /** @class */ (function () {
+    function SystemService(ipc) {
+        var _this = this;
+        this.ipc = ipc;
+        this.wifi$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["BehaviorSubject"](new _models_wifi_connection__WEBPACK_IMPORTED_MODULE_4__["WifiConnection"]({
+            ssid: 'NO WIFI',
+            quality: 0
+        }));
+        this.battery$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["BehaviorSubject"](new _models_battery__WEBPACK_IMPORTED_MODULE_5__["Battery"](1));
+        this.ipc.send('get system metadata');
+        this.ipc.on('system metadata').subscribe(function (metadata) {
+            _this.wifi$.next(new _models_wifi_connection__WEBPACK_IMPORTED_MODULE_4__["WifiConnection"](metadata.wifiConnections[0]));
+            _this.battery$.next(new _models_battery__WEBPACK_IMPORTED_MODULE_5__["Battery"](metadata.battery));
+        });
+    }
+    SystemService.prototype.openApp = function (app) {
+        if (this.ipc.isDefined()) {
+            this.ipc.send('open app', app);
+        }
+        else {
+            window.open(app.url, 'blank');
+        }
+    };
+    SystemService.prototype.sendSignal = function (signal) {
+        this.ipc.send('system signal', signal);
+    };
+    SystemService.ctorParameters = function () { return [
+        { type: _ipc_service__WEBPACK_IMPORTED_MODULE_2__["IPCService"] }
+    ]; };
+    SystemService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        })
+    ], SystemService);
+    return SystemService;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/sidebar.component.ts":
 /*!**************************************!*\
   !*** ./src/app/sidebar.component.ts ***!
@@ -454,105 +740,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SidebarComponent", function() { return SidebarComponent; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _services_ipc_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./services/ipc.service */ "./src/app/services/ipc.service.ts");
+/* harmony import */ var _services_system_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./services/system.service */ "./src/app/services/system.service.ts");
 
 
 
 var SidebarComponent = /** @class */ (function () {
-    function SidebarComponent(ipc) {
-        this.ipc = ipc;
-        this.wifiIcon = 'wifi';
-        this.batteryIcon = 'battery';
-        this._wifiConnection = {
-            ssid: 'NO WIFI'
-        };
-        this._battery = 1;
+    function SidebarComponent(system) {
+        this.system = system;
     }
-    Object.defineProperty(SidebarComponent.prototype, "wifiConnection", {
-        get: function () {
-            return this._wifiConnection;
-        },
-        set: function (value) {
-            this._wifiConnection = value;
-            var roundedSignal = Math.round((value.quality + Number.EPSILON) / 10);
-            switch (roundedSignal) {
-                case 0:
-                    this.wifiIcon = 'wifi-strength-outline';
-                    break;
-                case 1:
-                    this.wifiIcon = 'wifi-strength-1';
-                    break;
-                case 2:
-                    this.wifiIcon = 'wifi-strength-1';
-                    break;
-                case 3:
-                    this.wifiIcon = 'wifi-strength-2';
-                    break;
-                case 4:
-                    this.wifiIcon = 'wifi-strength-2';
-                    break;
-                case 5:
-                    this.wifiIcon = 'wifi-strength-2';
-                    break;
-                case 6:
-                    this.wifiIcon = 'wifi-strength-3';
-                    break;
-                case 7:
-                    this.wifiIcon = 'wifi-strength-3';
-                    break;
-                case 8:
-                    this.wifiIcon = 'wifi-strength-3';
-                    break;
-                case 9:
-                    this.wifiIcon = 'wifi-strength-4';
-                    break;
-                case 10:
-                    this.wifiIcon = 'wifi-strength-4';
-                    break;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SidebarComponent.prototype, "battery", {
-        get: function () {
-            return this._battery;
-        },
-        set: function (value) {
-            this._battery = value;
-            var roundedLevel = Math.round((value + Number.EPSILON) * 10) * 10;
-            switch (roundedLevel) {
-                case 0:
-                    this.batteryIcon = 'battery-outline';
-                    break;
-                case 100:
-                    this.batteryIcon = 'battery';
-                    break;
-                default:
-                    this.batteryIcon = 'battery-' + roundedLevel;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    SidebarComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        this.ipc.send('get system metadata');
-        this.ipc.on('system metadata').subscribe(function (metadata) {
-            _this.wifiConnection = metadata.wifiConnections[0];
-            _this.battery = metadata.battery;
-        });
-    };
-    SidebarComponent.prototype.sendSystemSignal = function (signal) {
-        this.ipc.send('system signal', signal);
+    SidebarComponent.prototype.onSystemIconClick = function (signal) {
+        this.system.sendSignal(signal);
     };
     SidebarComponent.ctorParameters = function () { return [
-        { type: _services_ipc_service__WEBPACK_IMPORTED_MODULE_2__["IPCService"] }
+        { type: _services_system_service__WEBPACK_IMPORTED_MODULE_2__["SystemService"] }
     ]; };
     SidebarComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
             selector: 'app-sidebar',
-            template: "\n    <div style=\"width: 40vw;\" class=\"container pt-4\">\n\n      <div class=\"row text-center\" style=\"font-size: 30px;\">\n\n        <div class=\"col-6\">\n          <i class=\"mdi mdi-{{ wifiIcon }}\"></i> {{ wifiConnection?.ssid }}\n        </div>\n        <div class=\"col-6\">\n          <i class=\"mdi mdi-{{ batteryIcon }}\"></i> {{ battery * 100 }}%\n        </div>\n\n      </div>\n\n      <!-- div class=\"text-center\"  style=\"font-size: 80px; margin-top: 50px;\">\n          <i class=\"mdi mdi-weather-fog\"></i>\n          <br/>\n          18\u00BA\n      </div -->\n\n\n      <div class=\"row text-center\" style=\"\n        font-size: 40px;\n        position: absolute;\n        bottom: 30px;\n        width: 100%;\n      \">\n\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-power\" style=\"color: #FD7272\"\n            (click)=\"sendSystemSignal('shutdown')\"></i>\n        </div>\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-restart\" style=\"color: #58B19F\"\n            (click)=\"sendSystemSignal('restart')\"></i>\n        </div>\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-close\" style=\"color: #FEA47F\"\n            (click)=\"sendSystemSignal('close')\"></i>\n        </div>\n\n      </div>\n\n    </div>\n  "
+            template: "\n    <div style=\"width: 40vw;\" class=\"container pt-4\">\n\n      <div class=\"row text-center\" style=\"font-size: 30px;\">\n\n        <div class=\"col-6\" *ngIf=\"system.wifi$ | async as wifi\">\n          <i class=\"mdi mdi-{{ wifi.icon }}\"></i> {{ wifi?.ssid }}\n        </div>\n        <div class=\"col-6\" *ngIf=\"system.battery$ | async as battery\">\n          <i class=\"mdi mdi-{{ battery.icon }}\"></i> {{ battery.value * 100 }}%\n        </div>\n\n      </div>\n\n      <!-- div class=\"text-center\"  style=\"font-size: 80px; margin-top: 50px;\">\n          <i class=\"mdi mdi-weather-fog\"></i>\n          <br/>\n          18\u00BA\n      </div -->\n\n\n      <div class=\"row text-center\" style=\"\n        font-size: 40px;\n        position: absolute;\n        bottom: 30px;\n        width: 100%;\n      \">\n\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-power\" style=\"color: #FD7272\"\n            (click)=\"onSystemIconClick('shutdown')\"></i>\n        </div>\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-restart\" style=\"color: #58B19F\"\n            (click)=\"onSystemIconClick('restart')\"></i>\n        </div>\n        <div class=\"col-4\">\n          <i class=\"mdi mdi-close\" style=\"color: #FEA47F\"\n            (click)=\"onSystemIconClick('close')\"></i>\n        </div>\n\n      </div>\n\n    </div>\n  "
         })
     ], SidebarComponent);
     return SidebarComponent;
