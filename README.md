@@ -1,5 +1,7 @@
 # X10Launcher
 
+[![demo](https://img.shields.io/badge/-demo-ff69b4)](https://d3v0ps.github.io/x10-launcher)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.2.
 
 ## Development server
