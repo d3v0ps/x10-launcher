@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SwiperModule, SWIPER_CONFIG, SwiperConfigInterface } from 'ngx-swiper-wrapper';
 import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
 import { SidebarModule } from 'ng-sidebar';
+import { NgxGamepadModule } from 'ngx-gamepad';
 
 import { AppComponent } from './app.component';
 import { SidebarComponent } from './sidebar.component';
@@ -27,6 +28,7 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
     SwiperModule,
     KeyboardShortcutsModule.forRoot(),
     SidebarModule.forRoot(),
+    NgxGamepadModule,
   ],
   providers: [
     {

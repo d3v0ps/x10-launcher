@@ -3,8 +3,8 @@ import { bufferCount } from 'rxjs/operators';
 
 import { SwiperConfig } from 'ngx-swiper-wrapper';
 import { ShortcutInput } from 'ng-keyboard-shortcuts';
+import { GamepadService } from 'ngx-gamepad';
 
-import { GamepadService } from './services/gamepad.service';
 import { CardService } from './services/card.service';
 import { IconService } from './services/icon.service';
 
