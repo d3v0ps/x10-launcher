@@ -36,7 +36,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
-/* harmony import */ var _services_gamepad_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/gamepad.service */ "./src/app/services/gamepad.service.ts");
+/* harmony import */ var ngx_gamepad__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ngx-gamepad */ "./node_modules/ngx-gamepad/fesm5/ngx-gamepad.js");
 /* harmony import */ var _services_card_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/card.service */ "./src/app/services/card.service.ts");
 /* harmony import */ var _services_icon_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./services/icon.service */ "./src/app/services/icon.service.ts");
 
@@ -194,7 +194,7 @@ var AppComponent = /** @class */ (function () {
     };
     AppComponent.ctorParameters = function () { return [
         { type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] },
-        { type: _services_gamepad_service__WEBPACK_IMPORTED_MODULE_3__["GamepadService"] },
+        { type: ngx_gamepad__WEBPACK_IMPORTED_MODULE_3__["GamepadService"] },
         { type: _services_card_service__WEBPACK_IMPORTED_MODULE_4__["CardService"] },
         { type: _services_icon_service__WEBPACK_IMPORTED_MODULE_5__["IconService"] }
     ]; };
@@ -230,8 +230,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ng_keyboard_shortcuts__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ng-keyboard-shortcuts */ "./node_modules/ng-keyboard-shortcuts/fesm5/ng-keyboard-shortcuts.js");
 /* harmony import */ var ng_sidebar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ng-sidebar */ "./node_modules/ng-sidebar/lib/index.js");
 /* harmony import */ var ng_sidebar__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(ng_sidebar__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
-/* harmony import */ var _sidebar_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./sidebar.component */ "./src/app/sidebar.component.ts");
+/* harmony import */ var ngx_gamepad__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ngx-gamepad */ "./node_modules/ngx-gamepad/fesm5/ngx-gamepad.js");
+/* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
+/* harmony import */ var _sidebar_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./sidebar.component */ "./src/app/sidebar.component.ts");
+
 
 
 
@@ -252,8 +254,8 @@ var AppModule = /** @class */ (function () {
     AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_3__["NgModule"])({
             declarations: [
-                _app_component__WEBPACK_IMPORTED_MODULE_8__["AppComponent"],
-                _sidebar_component__WEBPACK_IMPORTED_MODULE_9__["SidebarComponent"],
+                _app_component__WEBPACK_IMPORTED_MODULE_9__["AppComponent"],
+                _sidebar_component__WEBPACK_IMPORTED_MODULE_10__["SidebarComponent"],
             ],
             imports: [
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["BrowserModule"],
@@ -262,6 +264,7 @@ var AppModule = /** @class */ (function () {
                 ngx_swiper_wrapper__WEBPACK_IMPORTED_MODULE_5__["SwiperModule"],
                 ng_keyboard_shortcuts__WEBPACK_IMPORTED_MODULE_6__["KeyboardShortcutsModule"].forRoot(),
                 ng_sidebar__WEBPACK_IMPORTED_MODULE_7__["SidebarModule"].forRoot(),
+                ngx_gamepad__WEBPACK_IMPORTED_MODULE_8__["NgxGamepadModule"],
             ],
             providers: [
                 {
@@ -269,7 +272,7 @@ var AppModule = /** @class */ (function () {
                     useValue: DEFAULT_SWIPER_CONFIG
                 }
             ],
-            bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_8__["AppComponent"]]
+            bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_9__["AppComponent"]]
         })
     ], AppModule);
     return AppModule;
@@ -434,54 +437,6 @@ var CardService = /** @class */ (function () {
         })
     ], CardService);
     return CardService;
-}());
-
-
-
-/***/ }),
-
-/***/ "./src/app/services/gamepad.service.ts":
-/*!*********************************************!*\
-  !*** ./src/app/services/gamepad.service.ts ***!
-  \*********************************************/
-/*! exports provided: GamepadService */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GamepadService", function() { return GamepadService; });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
-
-
-
-
-var GamepadService = /** @class */ (function () {
-    function GamepadService() {
-        if (window.gameControl) {
-            this.gameControl = window.gameControl;
-        }
-    }
-    GamepadService.prototype.connect = function () {
-        var _this = this;
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this.gameControl, 'connect')
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["tap"])(function (gamepad) { return _this.gamepad = gamepad; }));
-    };
-    GamepadService.prototype.after = function (event) {
-        var _this = this;
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEventPattern"])(function (handler) { return _this.gamepad.after(event, handler); });
-    };
-    GamepadService.prototype.on = function (event) {
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["fromEvent"])(this.gamepad, event);
-    };
-    GamepadService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
-        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
-            providedIn: 'root'
-        })
-    ], GamepadService);
-    return GamepadService;
 }());
 
 
